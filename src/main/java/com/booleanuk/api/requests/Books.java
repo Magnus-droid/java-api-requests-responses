@@ -2,6 +2,7 @@ package com.booleanuk.api.requests;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,20 +24,21 @@ public class Books {
         return this.books;
     }
 
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @GetMapping("/{id}")
-    public Book getOneBook(@PathVariable long id) {
+    public Book getOneBook(@PathVariable long id) throws ResponseStatusException{
         Book toReturn;
         for (Book book : this.books) {
             if (book.getId() == id) {
                 toReturn = book;
                 return toReturn;
             }
-        } return null;
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such book in the book list");
 
     }
-
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PutMapping("/{id}")
-    public Book putBook(@PathVariable long id, @RequestBody Book book) {
+    public Book putBook(@PathVariable long id, @RequestBody Book book) throws ResponseStatusException {
         Book toPut = null;
         for (Book writing : this.books) {
             if (writing.getId() == id) {
@@ -47,12 +49,13 @@ public class Books {
                 //A book with a changed parameter is a new book technically speaking
                 writing.recomputeID();
                 toPut = writing;
+                return toPut;
             }
-        } return toPut;
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The book does not exist in the book list");
     }
 
     @DeleteMapping("/{id}")
-    public Book delete(@PathVariable long id) {
+    public Book delete(@PathVariable long id) throws ResponseStatusException{
         Book toDelete;
         for (Book book : this.books) {
             if (book.getId() == id) {
@@ -60,7 +63,7 @@ public class Books {
                 books.remove(book);
                 return toDelete;
             }
-        } return null;
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The book does not exist in the book list");
 
     }
 
